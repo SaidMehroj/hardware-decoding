@@ -1,0 +1,25 @@
+git clone https://git.videolan.org/git/ffmpeg/nv-codec-headers.git
+
+cd nv-codec-headers && sudo make install && cd –
+
+git clone https://git.ffmpeg.org/ffmpeg.git ffmpeg/
+
+sudo apt-get install build-essential yasm cmake libtool libc6 libc6-dev unzip wget libnuma1 libnuma-dev
+
+./configure --prefix=/usr --extra-version=0ubuntu0.22.04.1 --toolchain=hardened --libdir=/usr/lib/x86_64-linux-gnu --incdir=/usr/include/x86_64-linux-gnu --arch=amd64 --enable-gpl --enable-ladspa --enable-libaom --enable-libdav1d --enable-libfontconfig --enable-libfreetype --enable-libopenjpeg --enable-libpulse --enable-libsnappy --enable-libssh --enable-libvpx --enable-libwebp --enable-libx265 --enable-libxvid --enable-libzimg --enable-omx --enable-opencl --enable-opengl --enable-sdl2 --enable-librsvg --enable-libmfx --extra-cflags=-I/usr/include --enable-libdrm --enable-libx264 --enable-nonfree --enable-cuda-nvcc --enable-libnpp --extra-cflags=-I/usr/local/cuda/include --extra-ldflags=-L/usr/local/cuda/lib64 --disable-static --disable-x86asm --enable-shared
+
+make -j$(nproc)
+sudo make install
+
+ffmpeg -version
+ffmpeg version N-119155-g3f30ae823e-0ubuntu0.22.04.1 Copyright (c) 2000-2025 the FFmpeg developers
+built with gcc 11 (Ubuntu 11.4.0-1ubuntu1~22.04)
+configuration: --prefix=/usr --extra-version=0ubuntu0.22.04.1 --toolchain=hardened --libdir=/usr/lib/x86_64-linux-gnu --incdir=/usr/include/x86_64-linux-gnu --arch=amd64 --enable-gpl --enable-ladspa --enable-libaom --enable-libdav1d --enable-libfontconfig --enable-libfreetype --enable-libopenjpeg --enable-libpulse --enable-libsnappy --enable-libssh --enable-libvpx --enable-libwebp --enable-libx265 --enable-libxvid --enable-libzimg --enable-omx --enable-opencl --enable-opengl --enable-sdl2 --enable-librsvg --enable-libmfx --extra-cflags=-I/usr/include --enable-libdrm --enable-libx264 --enable-nonfree --enable-cuda-nvcc --enable-libnpp --extra-cflags=-I/usr/local/cuda/include --extra-ldflags=-L/usr/local/cuda/lib64 --disable-static --disable-x86asm --enable-shared
+libavutil      60.  0.100 / 60.  0.100
+libavcodec     62.  0.101 / 62.  0.101
+libavformat    62.  0.100 / 62.  0.100
+libavdevice    62.  0.100 / 62.  0.100
+libavfilter    11.  0.100 / 11.  0.100
+libswscale      9.  0.100 /  9.  0.100
+libswresample   6.  0.100 /  6.  0.100
+libpostproc    59.  0.100 / 59.  0.100

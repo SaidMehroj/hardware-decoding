@@ -1,0 +1,23 @@
+sudo apt update
+sudo apt install -y cmake build-essential pkg-config libva-dev libdrm-dev
+
+sudo apt install -y intel-media-va-driver-non-free
+
+git clone https://github.com/Intel-Media-SDK/MediaSDK.git
+cd MediaSDK
+mkdir build && cd build
+cmake ..
+make -j$(nproc)
+sudo make install
+
+
+sudo apt install vainfo
+vainfo
+
+ls `/opt/intel/mediasdk/lib/pkgconfig/`
+libmfxhw64.pc  libmfx.pc      mfx.pc 
+
+vim ~/.bashrc
+export PKG_CONFIG_PATH=/opt/intel/mediasdk/lib/pkgconfig/
+
+source ~/.bashrc
