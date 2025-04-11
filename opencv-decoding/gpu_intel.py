@@ -2,7 +2,8 @@ import cv2
 import time
 
 cap = cv2.VideoCapture(
-    "/home/mehroj/Coding/hardware-decoding/video/input.mp4"
+    "/home/mehroj/Coding/hardware-decoding/video/input.mp4",
+    cv2.CAP_GSTREAMER
 )
 
 if not cap.isOpened():
@@ -42,10 +43,10 @@ print(f"Занятное время: {duration_ms:.2f} Millisec")
 
 """
 Размер видео (640, 360)
-Количество кадров: 9470
-Количество ключевых кадров: 118
+Количество кадров: 9471
+Количество ключевых кадров: 0
 FPS: 29.97002997002997
-Тип кодека видео: h264
+Тип кодека видео: 
 Длительность видео: ~5.27 минут
-Занятное время: 17308.19 Millisec
+Занятное время: 58341.70 Millisec
 """

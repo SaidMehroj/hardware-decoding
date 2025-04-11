@@ -1,0 +1,23 @@
+sudo apt install \
+  build-essential meson ninja-build \
+  libgstreamer1.0-dev libgstreamer-plugins-base1.0-dev \
+  libx11-dev libxext-dev \
+  libva-x11-2 \
+  gstreamer1.0-tools gstreamer1.0-gl gstreamer1.0-libav
+
+
+git clone https://gitlab.freedesktop.org/gstreamer/gst-plugins-bad.git -b 1.20.3
+cd gst-plugins-bad  
+
+meson setup build \
+  --prefix=/usr \
+  -Dnvcodec=enabled \
+  -Dc_args="-I/usr/local/cuda/include" \
+  -Dc_link_args="-L/usr/local/cuda/lib64"
+  
+ninja -C build
+sudo ninja -C build install
+
+gst-inspect-1.0 nvcodec
+gst-inspect-1.0 nvh264dec
+gst-inspect-1.0 vaapi

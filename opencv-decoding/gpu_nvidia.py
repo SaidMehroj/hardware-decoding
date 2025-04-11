@@ -9,6 +9,13 @@ fname = "/home/mehroj/Coding/hardware-decoding/video/input.mp4"
 
 d_reader = cv2.cudacodec.createVideoReader(fname)
 
+# Установка цветового формата, пример
+# d_reader.set(cv2.cudacodec.ColorFormat_NV_NV12)
+# Поддерживаемые форматы: 'ColorFormat_BGR', 'ColorFormat_BGRA', 'ColorFormat_GRAY', 
+# 'ColorFormat_NV_AYUV', 'ColorFormat_NV_IYUV', 'ColorFormat_NV_NV12', 'ColorFormat_NV_YUV444', 
+# 'ColorFormat_NV_YV12', 'ColorFormat_PROP_NOT_SUPPORTED', 'ColorFormat_RGB', 'ColorFormat_RGBA', 'ColorFormat_UNDEFINED'
+
+
 # Характеристики
 _,video_width = d_reader.get(cv2.CAP_PROP_FRAME_WIDTH)
 _,video_height = d_reader.get(cv2.CAP_PROP_FRAME_HEIGHT)
@@ -25,9 +32,7 @@ while True:
     success, d_frame = d_reader.nextFrame()
     if not success:
         break
-
-    # Здесь я использовал cv2.CAP_PROP_LRF_HAS_KEY_FRAME вместо cv2.cudacodec.VideoReaderProps_PROP_LRF_HAS_KEY_FRAME
-    # потому второе всегда показывал значение True
+    
     has_key_frame,_ = d_reader.get(cv2.CAP_PROP_LRF_HAS_KEY_FRAME)
 
     if has_key_frame:

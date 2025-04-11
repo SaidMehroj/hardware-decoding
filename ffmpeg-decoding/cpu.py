@@ -30,29 +30,27 @@ def decode(video_path):
     
     frame_count = 0
     fps = 0
-    video_time=""
-    speed=""
-    
+    speed = ""
+
+    progress_lines = []
     for line in stderr_output.split('\n'):
         if "frame=" in line and "fps=" in line:
-            match = re.search(r'fps=(\d+)', line)
-            if match:
-                fps = match.group(1)
-            match = re.search(r'frame= (\d+)', line)
-            if match:
-                frame_count = match.group(1)
-            match = re.search(r'time=(\d{2}:\d{2}:\d{2}\.\d{2})', line)
-            if match:
-                video_time = match.group(1)
-            match = re.search(r'speed=(\d+\.\d+)', line)
-            if match:
-                speed = match.group(1)                                                
+            progress_lines.append(line)
+
+    if progress_lines:
+        last_line = progress_lines[-1]
+        all_frames = re.findall(r'frame=\s*(\d+)', last_line)
+        all_fps = re.findall(r'fps=([\d.]+)', last_line)
+        all_speeds = re.findall(r'speed=\s*([\d.]+)x', last_line)
+
+        frame_count = int(all_frames[-1]) if all_frames else None
+        fps = float(all_fps[-1]) if all_fps else None
+        speed = float(all_speeds[-1]) if all_speeds else None                               
     
     return {
         'duration_ms': duration_ms,
         'frame_count': frame_count,
         'fps': fps,
-        'video_time': video_time,
         'speed': speed
     }
 
@@ -69,7 +67,6 @@ def main():
     print(f"Время декодирования: {result['duration_ms']:.2f} мс")
     print(f"Декодировано кадров: {result['frame_count']}")
     print(f"Средний FPS: {result['fps']}")
-    print(f"Продолжительность видео: {result['video_time']}")
     print(f"Скорость: {result['speed']}")
 
 if __name__ == "__main__":
@@ -81,6 +78,5 @@ if __name__ == "__main__":
 Время декодирования: 18387.01 мс
 Декодировано кадров: 9470
 Средний FPS: 520
-Продолжительность видео: 00:05:15.98
 Скорость: 17.3
 """    
