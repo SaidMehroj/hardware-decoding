@@ -1,44 +1,78 @@
-import subprocess
 import time
 import os
 import re
 import gi
-import sys
 gi.require_version('Gst', '1.0')
-from gi.repository import Gst, GLib
+gi.require_version('GstPbutils', '1.0')
+from gi.repository import Gst, GLib, GstPbutils
 
-# Инициализация GStreamer
 Gst.init(None)
 
-def get_video_metadata(video_path):
-    cmd = ['gst-discoverer-1.0', '-v', video_path]
-    try:
-        process = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-        stdout, _ = process.communicate()
-        return stdout.decode('utf-8')
-    except Exception as e:
-        print(f"Ошибка при получении информации о видео: {e}")
-        return ""
-
-def parse_video_info(output):
-    codec_match = re.search(r'video/x-([a-zA-Z0-9]+)', output)
-    color_match = re.search(r'format: ([a-zA-Z0-9]+)', output)
-    duration_match = re.search(r'Duration: (\d+):(\d+):(\d+\.\d+)', output)
-
-    codec_name = codec_match.group(1) if codec_match else "unknown"
-    pix_fmt = color_match.group(1) if color_match else "unknown"
-
-    if duration_match:
-        h, m, s = int(duration_match.group(1)), int(duration_match.group(2)), float(duration_match.group(3))
-        duration_sec = h * 3600 + m * 60 + s
-    else:
-        duration_sec = 0
-
-    return {
-        'codec_name': codec_name,
-        'pix_fmt': pix_fmt,
-        'duration': duration_sec
+def parse_video_info(video_path):
+    default_result = {
+        'codec_name': "unknown",
+        'pix_fmt': "unknown",
+        'duration': 0,
+        'width': 0,
+        'height': 0,
+        'framerate': 0
     }
+    
+    try:
+        if not os.path.exists(video_path):
+            print(f"Ошибка3: Файл не найден: {video_path}")
+            return default_result
+        
+        abs_path = os.path.abspath(video_path)
+        
+        timeout = 5 * Gst.SECOND
+        discoverer = GstPbutils.Discoverer.new(timeout)
+        file_uri = Gst.filename_to_uri(abs_path)
+        
+        info = discoverer.discover_uri(file_uri)
+        
+        codec_name = "unknown"
+        pix_fmt = "unknown"
+        duration_sec = info.get_duration() / Gst.SECOND
+        width = 0
+        height = 0
+        framerate = 0
+        
+        video_streams = info.get_video_streams()
+        if video_streams:
+            video_stream = video_streams[0]
+            caps = video_stream.get_caps().to_string()
+            
+            codec_match = re.search(r'video/x-([a-zA-Z0-9]+)', caps)
+            if codec_match:
+                codec_name = codec_match.group(1)
+            
+            format_match = re.search(r'format=\(string\)([a-zA-Z0-9]+)', caps)
+            if format_match:
+                pix_fmt = format_match.group(1)
+            
+            width = video_stream.get_width()
+            height = video_stream.get_height()
+            
+            num = video_stream.get_framerate_num()
+            denom = video_stream.get_framerate_denom()
+            if denom > 0:
+                framerate = num / denom
+        
+        return {
+            'codec_name': codec_name,
+            'pix_fmt': pix_fmt,
+            'duration': duration_sec,
+            'width': width,
+            'height': height,
+            'framerate': framerate
+        }
+    except GLib.Error as e:
+        print(f"GStreamer ошибка: {e.message}")
+        return default_result
+    except Exception as e:
+        print(f"Ошибка при парсинге информации о видео: {e}")
+        return default_result
 
 def decode(video_path):
     t1 = time.time()
@@ -87,8 +121,7 @@ def decode(video_path):
     t2 = time.time()
     process_time = t2 - t1
 
-    metadata = get_video_metadata(video_path)
-    info = parse_video_info(metadata)
+    info = parse_video_info(video_path)
     video_duration = info['duration']
 
     fps = frame_count[0] / process_time if process_time > 0 else 0
@@ -148,8 +181,7 @@ def decode_with_vaapi(video_path):
     t2 = time.time()
     process_time = t2 - t1
 
-    metadata = get_video_metadata(video_path)
-    info = parse_video_info(metadata)
+    info = parse_video_info(video_path)
     video_duration = info['duration']
 
     fps = frame_count[0] / process_time if process_time > 0 else 0
@@ -208,8 +240,7 @@ def decode_with_avdec(video_path):
     t2 = time.time()
     process_time = t2 - t1
 
-    metadata = get_video_metadata(video_path)
-    info = parse_video_info(metadata)
+    info = parse_video_info(video_path)
     video_duration = info['duration']
 
     fps = frame_count[0] / process_time if process_time > 0 else 0
@@ -227,11 +258,10 @@ def main():
     video_path = "/home/mehroj/Coding/hardware-decoding/video/input.mp4"
     
     if not os.path.exists(video_path):
-        print(f"Ошибка: файл {video_path} не найден.")
+        print(f"Ошибка1: файл {video_path} не найден.")
         return
 
-    metadata = get_video_metadata(video_path)
-    info = parse_video_info(metadata)
+    info = parse_video_info(video_path)
 
     print("\nИнформация о видео:")
     print(f"Кодек: {info['codec_name']}")
@@ -262,7 +292,7 @@ if __name__ == "__main__":
 """
 Информация о видео:
 Кодек: h264
-Цветовое пространство: ISO
+Цветовое пространство: avc
 Продолжительность: 316.047 сек
 
 Декодирование:
@@ -272,10 +302,10 @@ Pipeline: filesrc location="/home/mehroj/Coding/hardware-decoding/video/input.mp
         nvh264dec !
         cudaconvert !
         fakesink name=sink sync=false
-Время декодирования: 2354.40 мс
+Время декодирования: 2387.49 мс
 Декодировано кадров: 9470
-Средний FPS: 4022.3
-Скорость: 134.2x
+Средний FPS: 3966.5
+Скорость: 132.4x
 
 VAAPI-декодирование:
 Pipeline (VAAPI): filesrc location="/home/mehroj/Coding/hardware-decoding/video/input.mp4" !
@@ -284,12 +314,7 @@ Pipeline (VAAPI): filesrc location="/home/mehroj/Coding/hardware-decoding/video/
         vaapih264dec !
         video/x-raw !
         fakesink name=sink sync=false
-DRM_IOCTL_I915_GEM_APERTURE failed: Invalid argument
-Assuming 131072kB available aperture size.
-May lead to reduced performance or incorrect rendering.
-get chip id failed: -1 [22]
-param: 4, val: 0
-Время: 6630.94 мс, FPS: 1428.2, Скорость: 47.7x
+Время: 6884.27 мс, FPS: 1375.6, Скорость: 45.9x
 
 Программное декодирование (avdec_h264):
 Pipeline (avdec_h264): filesrc location="/home/mehroj/Coding/hardware-decoding/video/input.mp4" !
@@ -297,5 +322,5 @@ Pipeline (avdec_h264): filesrc location="/home/mehroj/Coding/hardware-decoding/v
         h264parse !
         avdec_h264 !
         fakesink name=sink sync=false
-Время: 19210.75 мс, FPS: 493.0, Скорость: 16.5x
+Время: 12401.58 мс, FPS: 763.6, Скорость: 25.5x
 """

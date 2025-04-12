@@ -1,4 +1,4 @@
-import subprocess
+import ffmpeg
 import time
 import os
 import re
@@ -6,54 +6,48 @@ import re
 def decode(video_path, only_keyframes=False, color_format=None):
     t1 = time.time()
     
-    cmd = [
-        'ffmpeg',
-        '-hwaccel', 'cuda',              
-        '-c:v', 'h264_cuvid'
-    ]
+    input_args = {
+        'hwaccel': 'cuda',
+        'c:v': 'h264_cuvid'
+    }
     
     if only_keyframes:
-        cmd.extend(['-skip_frame', 'nokey'])
-        
-    cmd.extend(['-i', video_path])
+        input_args['skip_frame'] = 'nokey'
     
+    stream = ffmpeg.input(video_path, **input_args)
+    
+    output_args = {'format': 'null'}
     if color_format:
-        cmd.extend(['-pix_fmt', color_format])
+        output_args['pix_fmt'] = color_format
     
-    cmd.extend(['-f', 'null', '-'])
-    
-    process = subprocess.Popen(
-        cmd, 
-        stdout=subprocess.PIPE, 
-        stderr=subprocess.PIPE
-    )
-    
-    stdout, stderr = process.communicate()
+    stream = ffmpeg.output(stream, '-', **output_args)
+
+    process = ffmpeg.run_async(stream, pipe_stderr=True)
+
+    stderr = process.stderr.read()
+    process.wait()
     
     t2 = time.time()
-    
     duration_ms = (t2 - t1) * 1000
     
     stderr_output = stderr.decode('utf-8', errors='ignore')
-    
     frame_count = 0
     fps = 0
-    speed = ""
-
+    speed = None
+    
     progress_lines = []
     for line in stderr_output.split('\n'):
         if "frame=" in line and "fps=" in line:
             progress_lines.append(line)
-
+    
     if progress_lines:
         last_line = progress_lines[-1]
         all_frames = re.findall(r'frame=\s*(\d+)', last_line)
         all_fps = re.findall(r'fps=([\d.]+)', last_line)
         all_speeds = re.findall(r'speed=\s*([\d.]+)x', last_line)
-
         frame_count = int(all_frames[-1]) if all_frames else None
         fps = float(all_fps[-1]) if all_fps else None
-        speed = float(all_speeds[-1]) if all_speeds else None                               
+        speed = float(all_speeds[-1]) if all_speeds else None
     
     return {
         'duration_ms': duration_ms,
@@ -63,47 +57,28 @@ def decode(video_path, only_keyframes=False, color_format=None):
     }
 
 def count_keyframes(video_path):
-    cmd = [
-        'ffprobe',
-        '-v', 'quiet',
-        '-select_streams', 'v:0',
-        '-show_entries', 'frame=pict_type',
-        '-of', 'csv=p=0',
-        video_path
-    ]
+    probe = ffmpeg.probe(
+        video_path,
+        select_streams='v:0',
+        show_frames=None, 
+    )
     
-    process = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-    stdout, stderr = process.communicate()
-    
-    frame_types = stdout.decode('utf-8').split('\n')
-    key_frames = frame_types.count('I')
+    frames = probe.get('frames', [])
+    key_frames = sum(1 for frame in frames if frame.get('pict_type') == 'I')
     
     return key_frames
 
 def get_video_info(video_path):
-    cmd = [
-        'ffprobe',
-        '-v', 'quiet',
-        '-print_format', 'json',
-        '-show_format',
-        '-show_streams',
-        video_path
-    ]
-    
-    process = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-    stdout, stderr = process.communicate()
-    
-    import json
-    video_info = json.loads(stdout.decode('utf-8'))
+    probe_result = ffmpeg.probe(video_path)
     
     video_stream = None
-    for stream in video_info.get('streams', []):
+    for stream in probe_result.get('streams', []):
         if stream.get('codec_type') == 'video':
             video_stream = stream
             break
     
     return {
-        'format': video_info.get('format', {}),
+        'format': probe_result.get('format', {}),
         'video_stream': video_stream
     }
 
@@ -160,20 +135,20 @@ if __name__ == "__main__":
 Количество ключевых кадров (I-frames): 120
 
 Обычное декодирование:
-Время декодирования: 7171.66 мс
+Время декодирования: 8528.85 мс
 Декодировано кадров: 9470
-Средний FPS: 1377.0
-Скорость: 46.0
+Средний FPS: 1171.0
+Скорость: 39.1
 
 Декодирование только ключевых кадров:
-Время декодирования: 7500.27 мс
+Время декодирования: 8082.51 мс
 Декодировано кадров: 9470
-Средний FPS: 1337.0
-Скорость: 44.6
+Средний FPS: 1233.0
+Скорость: 41.1
 
 Декодирование с цветовым форматом yuv420p:
-Время декодирования: 13387.79 мс
+Время декодирования: 14327.96 мс
 Декодировано кадров: 9470
-Средний FPS: 724.0
-Скорость: 24.2
+Средний FPS: 682.0
+Скорость: 22.7
 """    
