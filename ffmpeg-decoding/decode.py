@@ -3,7 +3,6 @@ import numpy as np
 import time
 import re
 
-
 def detect_video_format(video_path):
     probe = ffmpeg.probe(video_path)
     video_stream = next((stream for stream in probe['streams'] if stream['codec_type'] == 'video'), None)
@@ -33,7 +32,6 @@ def detect_video_format(video_path):
         'fps': fps
     }
 
-
 def decode_yuv420p(video_path,hwaccel_t,decoder_t ,only_keyframes=False):
     info = detect_video_format(video_path)
     width, height = info['width'], info['height']
@@ -47,8 +45,7 @@ def decode_yuv420p(video_path,hwaccel_t,decoder_t ,only_keyframes=False):
         input_args['skip_frame'] = 'nokey'
     
     output_args = {
-        'format': 'rawvideo',
-        'pix_fmt': 'yuv420p'
+        'format': 'null'
     }
     
     stream = ffmpeg.input(video_path, **input_args)
@@ -289,20 +286,4 @@ def main():
     print(f"format_type: {format_type}")
 
 
-main()    
-
-
-"""
-CUDA декодирование
-Processed 9470 frames in 0.08ms
-FPS: 3350.0, Speed: 112.0x
-
-Intel GPU декодирование
-Processed 9470 frames in 0.06ms
-FPS: 2006.0, Speed: 66.9x
-
-CPU декодирование
-Processed 9470 frames in 0.05ms
-FPS: 2452.0, Speed: 81.8x
-format_type: yuv420p
-"""
+main()

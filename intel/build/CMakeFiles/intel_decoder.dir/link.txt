@@ -1,0 +1,1 @@
+/usr/bin/c++ CMakeFiles/intel_decoder.dir/main.cpp.o -o intel_decoder  -lvpl -ldl -lstdc++ -lva-drm -lva -ldl -lpthread -lstdc++ -lva-drm -lva -lpthread 

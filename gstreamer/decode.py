@@ -76,27 +76,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-
-
-"""
-CUDA decoding
-Process_time: 1676.9
-FPS: 5647.4
-Скорость: 188.5x
-(640,360), format: NV12
-Frame_Count: 9470
-
-INTEL decoding
-Process_time: 5827.4
-FPS: 1625.1
-Скорость: 54.2x
-(640,360), format: NV12
-Frame_Count: 9470
-
-CPU decoding
-Process_time: 18456.6
-FPS: 513.1
-Скорость: 17.1x
-(640,360), format: I420
-Frame_Count: 9470
-"""

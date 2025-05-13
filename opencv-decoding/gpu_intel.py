@@ -3,7 +3,7 @@ import time
 
 cap = cv2.VideoCapture(
     "/home/mehroj/Coding/hardware-decoding/video/input.mp4",
-    cv2.CAP_GSTREAMER
+    cv2.CAP_INTEL_MFX
 )
 
 if not cap.isOpened():
@@ -40,13 +40,3 @@ print(f"Тип кодека видео: {video_codec}")
 print(f"Длительность видео: ~{(video_frames / video_fps) / 60:.2f} минут")
 duration_ms = (t2 - t1) * 1000
 print(f"Занятное время: {duration_ms:.2f} Millisec")
-
-"""
-Размер видео (640, 360)
-Количество кадров: 9471
-Количество ключевых кадров: 0
-FPS: 29.97002997002997
-Тип кодека видео: 
-Длительность видео: ~5.27 минут
-Занятное время: 58341.70 Millisec
-"""

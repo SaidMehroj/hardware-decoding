@@ -43,19 +43,8 @@ t2 = time.time()
 print(f"Размер видео ({video_width},{video_height})")
 print(f"Количество кадров: {video_frames}")
 print(f"Количество ключевых кадров: {key_frame_count}")
-print(f"FPS: {video_fps}")
+print(f"FPS: {video_frames/(t2 - t1):.2f}")
 print(f"Тип кодека видео: {video_codec}")
 print(f"Длительность видео: ~{(video_frames/video_fps)/60:.2f}")
 duration_ms = (t2 - t1) * 1000
 print(f"Занятное время: {duration_ms:.2f} Millisec")
-
-
-"""
-Размер видео (640.0,360.0)
-Количество кадров: 9470.0
-Количество ключевых кадров: 165
-FPS: 29.97002997002997
-Тип кодека видео: h264
-Длительность видео: ~5.27
-Занятное время: 4520.71 Millisec
-"""
