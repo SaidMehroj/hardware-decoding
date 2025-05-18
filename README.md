@@ -28,7 +28,7 @@
 ## ⚙️ Установка и использование
 
 ### Установка
-Инструкции по настройке окружения находятся в папке [installation/](installation/install.md):  
+Инструкции по настройке окружения находятся в папке [installation/](installation/):  
 - [`cuda_installation_guide.md`](installation/cuda_installation_guide.md) — установка NVIDIA CUDA и Video Codec SDK.  
 - [`ffmpeg_installation_guide.md`](installation/ffmpeg_installation_guide.md) — установка FFmpeg с поддержкой аппаратного декодирования.  
 - [`gstreamer_installation_guide.md`](installation/gstreamer_installation_guide.md) — установка GStreamer и плагинов.  
