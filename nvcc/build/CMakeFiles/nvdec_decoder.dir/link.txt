@@ -1,1 +1,0 @@
-/usr/bin/c++ CMakeFiles/nvdec_decoder.dir/main.cpp.o -o nvdec_decoder   -L/usr/local/cuda/lib64  -Wl,-rpath,/usr/local/cuda/lib64 -lcuda -lcudart -lnvcuvid 

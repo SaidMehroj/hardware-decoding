@@ -1,3 +1,0 @@
-/home/mehroj/Coding/hardware-decoding/nvcc/build/CMakeFiles/nvdec_decoder.dir
-/home/mehroj/Coding/hardware-decoding/nvcc/build/CMakeFiles/edit_cache.dir
-/home/mehroj/Coding/hardware-decoding/nvcc/build/CMakeFiles/rebuild_cache.dir

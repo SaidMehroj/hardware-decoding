@@ -1,7 +1,0 @@
-/home/mehroj/Coding/hardware-decoding/intel/build/CMakeFiles/intel_decoder.dir
-/home/mehroj/Coding/hardware-decoding/intel/build/CMakeFiles/edit_cache.dir
-/home/mehroj/Coding/hardware-decoding/intel/build/CMakeFiles/rebuild_cache.dir
-/home/mehroj/Coding/hardware-decoding/intel/build/CMakeFiles/list_install_components.dir
-/home/mehroj/Coding/hardware-decoding/intel/build/CMakeFiles/install.dir
-/home/mehroj/Coding/hardware-decoding/intel/build/CMakeFiles/install/local.dir
-/home/mehroj/Coding/hardware-decoding/intel/build/CMakeFiles/install/strip.dir
